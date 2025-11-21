@@ -13,9 +13,9 @@ class Trade:
 
 def calculate_pnl_avg_cost(trades: List[Trade]) -> Dict[str, float]:
 
-    positions: Dict[str, float] = {}
-    realized_pnl: Dict[str, float] = {}
-    avg_costs: Dict[str, float] = {}
+    positions: Dict[str, float] = defaultdict(float)
+    pnl: Dict[str, float] = defaultdict(float)
+    avg_costs: Dict[str, float] = defaultdict(float)
 
     for t in trades:
         symbol = t.symbol
@@ -25,7 +25,6 @@ def calculate_pnl_avg_cost(trades: List[Trade]) -> Dict[str, float]:
 
         pos = positions.get(symbol, 0.0)
         avg_cost = avg_costs.get(symbol, 0.0)
-        pnl = realized_pnl.get(symbol, 0.0)
 
         if side == 'BUY':
             new_pos = pos + qty
@@ -40,12 +39,10 @@ def calculate_pnl_avg_cost(trades: List[Trade]) -> Dict[str, float]:
             if new_pos < 0:
                 raise ValueError(f"Cannot sell more than current position for {symbol}")
             
-            pnl += (price - avg_cost) * qty
             positions[symbol] = new_pos
-            realized_pnl[symbol] = pnl
+            pnl[symbol] += (price - avg_cost) * qty
 
-    return realized_pnl
-
+    return pnl
 
 def calculate_pnl_lifo(trades: List[Trade]) -> Dict[str, float]:
 
